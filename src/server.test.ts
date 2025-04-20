@@ -22,7 +22,7 @@ describe("server.ts", () => {
 
   it("カテゴリ一覧を返す", async () => {
     const result = await client.callTool({
-      name: "getMsCreatorTagCategories",
+      name: "ms_creator_tag_categories",
     });
     const expectedText = [
       "## Categories",
@@ -52,9 +52,40 @@ describe("server.ts", () => {
     });
   });
 
+  it("サブカテゴリ一覧を返す", async () => {
+    const result = await client.callTool({
+      name: "ms_creator_tag_sub_categories",
+      arguments: {
+        categoryName: "商品カテゴリー",
+      },
+    });
+    const expectedText = [
+      "## Sub categories",
+      "- カテゴリー情報",
+      "- パンくず",
+      "- 並び替え",
+      "- 商品一覧",
+      "- カテゴリーおすすめ商品",
+      "- サブカテゴリー一覧",
+      "- ページャー",
+      "- まとめ買い割引情報",
+      "- まとめ買い割引一覧",
+      "- 並び替え（まとめ買い）",
+      "- ページャー（まとめ買い割引）",
+    ].join("\n");
+    expect(result).toEqual({
+      content: [
+        {
+          type: "text",
+          text: expectedText,
+        },
+      ],
+    });
+  });
+
   it("カテゴリ名からタグ情報一覧を返す", async () => {
     const result = await client.callTool({
-      name: "getMsCreatorTagsByCategory",
+      name: "ms_creator_tag_search_by_category",
       arguments: {
         categoryName: "商品詳細",
       },
@@ -77,9 +108,37 @@ describe("server.ts", () => {
     });
   });
 
+  it("カテゴリとサブカテゴリ名からタグ情報一覧を返す", async () => {
+    const result = await client.callTool({
+      name: "ms_creator_tag_search_by_sub_category",
+      arguments: {
+        categoryName: "商品詳細",
+        subCategoryName: "パンくず",
+      },
+    });
+    const expectedText = [
+      "## $item.breadcrumb_list_group.has_item",
+      "パンくずリストが複数あるかどうか（真偽値）",
+      "",
+      "### Category",
+      "商品詳細",
+      "### Sub Category",
+      "パンくず",
+    ].join("\n");
+
+    expect(result).toEqual({
+      content: [
+        {
+          type: "text",
+          text: expect.stringContaining(expectedText),
+        },
+      ],
+    });
+  });
+
   it("説明からタグを検索して返す", async () => {
     const result = await client.callTool({
-      name: "searchMsCreatorTag",
+      name: "ms_creator_tag_search_by_keyword",
       arguments: {
         keyword: "商品名",
       },
@@ -104,7 +163,7 @@ describe("server.ts", () => {
 
   it("タグから該当するタグ情報を取得して返す", async () => {
     const result = await client.callTool({
-      name: "getMsCreatorTag",
+      name: "ms_creator_tag_get_detail",
       arguments: {
         tagName: "$item.name",
       },
@@ -129,7 +188,7 @@ describe("server.ts", () => {
 
   it("タグから該当するタグ情報(出典URL)を取得して返す", async () => {
     const result = await client.callTool({
-      name: "getMsCreatorTagSource",
+      name: "ms_creator_tag_get_source",
       arguments: {
         tagName: "$item.name",
       },
@@ -140,6 +199,8 @@ describe("server.ts", () => {
       "",
       "### Category",
       "商品詳細",
+      "### Sub Category",
+      "商品情報",
       "### Category source link",
       "https://reference.makeshop.jp/creator-mode/contents/detail/index.html",
     ].join("\n");
