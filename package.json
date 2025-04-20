@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Dosugamea/ms-creator-mcp-server#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.1",
+    "vite-tsconfig-paths": "^5.1.4",
     "zod": "^3.24.3"
   },
   "devDependencies": {
