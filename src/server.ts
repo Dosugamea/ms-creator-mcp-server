@@ -30,13 +30,57 @@ server.tool(
   }
 );
 
+// カテゴリ内のサブカテゴリ一覧を取得して返すツール
+server.tool(
+  "ms_creator_tag_sub_categories",
+  "Get categories for finding ms creator tags use with 'ms_creator_tag_search_by_sub_category'. Use it as a second step in finding tags to see the available sub categories.",
+  { categoryName: z.string().nonempty() },
+  async ({ categoryName }) => {
+    const categories = databaseHandler.getSubCategories(categoryName);
+    const respondResult = databaseFormatter.formatAsSubCategories(categories);
+    return {
+      content: [
+        {
+          type: "text",
+          text: respondResult,
+        },
+      ],
+    };
+  }
+);
+
 // カテゴリ名からタグ情報一覧を取得して返すツール
 server.tool(
   "ms_creator_tag_search_by_category",
-  "Gets a list of ms creator tags and descriptions that belong to a specified category name. Use the exact category name obtained from the 'ms_creator_tag_categories' tool (e.g. '商品検索結果'). Use this when you want to know which tags are available on a particular page (category).",
+  "Gets a list of ms creator tags and descriptions that belong to a specified category name. Use the exact category name obtained from the 'ms_creator_tag_categories' tool (e.g. '商品検索結果'). Use this when you want to know which tags are available on a particular page (category). As note, this result may very large depending on the category name. You should try to use `ms_creator_tag_search_by_sub_category` to make it smaller.",
   { categoryName: z.string().nonempty() },
   async ({ categoryName }) => {
     const searchResult = databaseHandler.searchByCategory(categoryName);
+    const respondResult = databaseFormatter.formatAsTagInfo(searchResult);
+    return {
+      content: [
+        {
+          type: "text",
+          text: respondResult,
+        },
+      ],
+    };
+  }
+);
+
+// カテゴリとサブカテゴリ名からタグ情報一覧を取得して返すツール
+server.tool(
+  "ms_creator_tag_search_by_sub_category",
+  "Gets a list of ms creator tags and descriptions that belong to a specified category name and sub category name. Use the exact category name obtained from the 'ms_creator_tag_categories' tool (e.g. '商品検索結果') and the exact sub category name obtained from the 'ms_creator_tag_sub_categories' tool (e.g. '商品名'). Use this when you want to know which tags are available on a particular page (category).",
+  {
+    categoryName: z.string().nonempty(),
+    subCategoryName: z.string().nonempty(),
+  },
+  async ({ categoryName, subCategoryName }) => {
+    const searchResult = databaseHandler.searchBySubCategory(
+      categoryName,
+      subCategoryName
+    );
     const respondResult = databaseFormatter.formatAsTagInfo(searchResult);
     return {
       content: [
@@ -87,7 +131,7 @@ server.tool(
   }
 );
 
-// タグから該当するタグのソース情報を取得して返すツール
+// タグから該当するタグの出典情報を取得して返すツール
 server.tool(
   "ms_creator_tag_get_source",
   "Gets the **source URL** of an MS Creator tag that matches the exact tag name specified (e.g. '$member.name'). The tag name must be an exact match and is case-sensitive. Use this tool **only** if you want a URL to a document that defines or specifies the tag. Use `ms_creator_tag_get_detail` if you want basic information like the tag description and category.",

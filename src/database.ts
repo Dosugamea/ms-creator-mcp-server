@@ -47,6 +47,8 @@ export class DatabaseLoader {
 export class DatabaseHandler {
   private dbRaw: DatabaseRecord[] = [];
   private dbByCategory: Record<string, DatabaseRecord[]> = {};
+  private dbBySubCategory: Record<string, Record<string, DatabaseRecord[]>> =
+    {};
   private categories: string[] = [];
 
   constructor(database: DatabaseLoader) {
@@ -62,6 +64,18 @@ export class DatabaseHandler {
       acc[category].push(record);
       return acc;
     }, {} as Record<string, DatabaseRecord[]>);
+    this.dbBySubCategory = this.dbRaw.reduce((acc, record) => {
+      const category = record.categoryName;
+      if (!acc[category]) {
+        acc[category] = {} as Record<string, DatabaseRecord[]>;
+      }
+      const subCategory = record.categorySubName;
+      if (!acc[category][subCategory]) {
+        acc[category][subCategory] = [];
+      }
+      acc[category][subCategory].push(record);
+      return acc;
+    }, {} as Record<string, Record<string, DatabaseRecord[]>>);
   }
 
   /** カテゴリ一覧を取得して返す */
@@ -69,9 +83,19 @@ export class DatabaseHandler {
     return this.categories;
   }
 
+  /** カテゴリ内のサブカテゴリ一覧を取得して返す */
+  getSubCategories(categoryName: string): string[] {
+    return Object.keys(this.dbBySubCategory[categoryName] || []);
+  }
+
   /** カテゴリに対応するタグ情報配列を取得して返す */
   searchByCategory(category: string): DatabaseRecord[] {
     return this.dbByCategory[category] || [];
+  }
+
+  /** サブカテゴリに対応するタグ情報配列を取得して返す */
+  searchBySubCategory(category: string, subCategory: string): DatabaseRecord[] {
+    return this.dbBySubCategory[category][subCategory] || [];
   }
 
   /** タグ名に対応するタグ情報配列を取得して返す */
@@ -100,6 +124,16 @@ export class DatabaseFormatter {
     );
   }
 
+  formatAsSubCategories(subCategories: string[]): string {
+    if (subCategories.length === 0) {
+      return "Error: No sub categories found";
+    }
+    return (
+      "## Sub categories\n" +
+      subCategories.map((category) => `- ${category}`).join("\n")
+    );
+  }
+
   formatAsTagInfo(tags: DatabaseRecord[]): string {
     if (tags.length === 0) {
       return "Error: No tags found";
@@ -114,6 +148,8 @@ export class DatabaseFormatter {
             "",
             `### Category`,
             tag.categoryName,
+            `### Sub Category`,
+            tag.categorySubName,
             `### Code Example`,
             tag.tagSampleCode || "No example provided",
             `### Output Example`,
@@ -127,6 +163,8 @@ export class DatabaseFormatter {
             "",
             `### Category`,
             tag.categoryName,
+            `### Sub Category`,
+            tag.categorySubName,
             `### Code Example`,
             tag.tagSampleCode || "No example provided",
           ];
@@ -149,6 +187,8 @@ export class DatabaseFormatter {
           "",
           `### Category`,
           tag.categoryName,
+          `### Sub Category`,
+          tag.categorySubName,
           `### Category source link`,
           tag.categoryLink,
           `### Tag source link`,
