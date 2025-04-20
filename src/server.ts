@@ -33,7 +33,7 @@ server.tool(
 // カテゴリ内のサブカテゴリ一覧を取得して返すツール
 server.tool(
   "ms_creator_tag_sub_categories",
-  "Get categories for finding ms creator tags use with 'ms_creator_tag_search_by_sub_category'. Use it as a second step in finding tags to see the available sub categories.",
+  "Get categories for finding ms creator tags use with 'ms_creator_tag_search_by_sub_category'. Use the exact category name obtained from the 'ms_creator_tag_categories' tool (e.g. '商品検索結果'). Use it as a second step in finding tags to see the available sub categories.",
   { categoryName: z.string().nonempty() },
   async ({ categoryName }) => {
     const categories = databaseHandler.getSubCategories(categoryName);
