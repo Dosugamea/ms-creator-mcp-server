@@ -9,6 +9,7 @@ RUN npm install
 
 # ソースコードのコピーとビルド
 COPY tsconfig.json ./
+COPY vite.config.ts ./
 COPY src/ ./src/
 RUN npm run build
 

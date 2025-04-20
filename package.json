@@ -4,7 +4,7 @@
   "description": "ms デザイン構築用 MCPサーバー (非公式)",
   "main": "src/server.ts",
   "scripts": {
-    "build": "tsc && chmod 755 dist/server.js",
+    "build": "vite build",
     "test": "vitest"
   },
   "repository": {
