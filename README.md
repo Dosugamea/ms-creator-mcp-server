@@ -1,6 +1,6 @@
 # ms-creator-mcp-server
 
-MS クリエイターモード デザイン構築用 MCP サーバー (非公式)
+makeshop クリエイターモード デザイン構築用 MCP サーバー (非公式)
 
 ## 提供ツール
 
